@@ -2,7 +2,7 @@
 
 ## 1. Consultation de l Emploi du Temps
 
-### Endpoint : `POST /v3/E/{id}/emploidutemps.awp`
+### Endpoint : `POST /v3/E/{id}/emploidutemps.awp?verbe=get&v=4.101.4`
 
 Permet d obtenir les séances de cours programmées pour une période donnée.
 
@@ -15,15 +15,9 @@ Permet d obtenir les séances de cours programmées pour une période donnée.
 }
 ```
 
-- `dateDebut` (obligatoire) : Date de début au format `YYYY-MM-DD`.
-- `dateFin` (obligatoire) : Date de fin au format `YYYY-MM-DD`.
-- `avecTrous` (optionnel) : Booléen (`true` pour inclure explicitement les plages horaires libres/vides).
-
 ---
 
-## 2. Structure d un Créneau de Cours
-
-### Réponse type (Code 200)
+## 2. Structure d un Créneau de Cours (Code 200)
 
 ```json
 {
@@ -46,9 +40,6 @@ Permet d obtenir les séances de cours programmées pour une période donnée.
       "classe": "TG1",
       "classeId": 101,
       "classeCode": "TG1",
-      "groupe": "",
-      "groupeId": 0,
-      "groupeCode": "",
       "isAnnule": false,
       "isModifie": false,
       "contenuDeSeance": true,
@@ -65,36 +56,11 @@ Permet d obtenir les séances de cours programmées pour une période donnée.
       "prof": "Mme MARTIN",
       "salle": "Salle 102",
       "isAnnule": true,
-      "isModifie": true,
-      "motifAnnulation": "Absence professeur"
-    },
-    {
-      "id": 0,
-      "text": "PERMANENCE",
-      "matiere": "Sans cours",
-      "codeMatiere": "LIBRE",
-      "typeCours": "PERMANENCE",
-      "start_date": "2026-09-15 11:05",
-      "end_date": "2026-09-15 12:00",
-      "salle": "",
-      "isAnnule": false,
-      "isModifie": false
+      "isModifie": true
     }
   ]
 }
 ```
 
----
-
-## 3. Analyse des Champs Clés
-
-| Champ | Type | Description |
-| :--- | :--- | :--- |
-| `start_date` / `end_date` | Chaîne | Horodatage au format `"YYYY-MM-DD HH:mm"`. |
-| `matiere` | Chaîne | Intitulé complet de la discipline. |
-| `codeMatiere` | Chaîne | Identifiant court de la discipline (ex: `MATHS`, `PH-CH`, `HI-GE`, `PHILO`, `AGL1`). |
-| `isAnnule` | Booléen | Indique si le cours a été annulé par l établissement. |
-| `isModifie` | Booléen | Indique si le cours a fait l objet d un changement (salle, horaire ou professeur remplaçant). |
-| `devoirCi` | Booléen | `true` si du travail à faire ou une évaluation est rattachée à cette séance. |
-| `contenuDeSeance` | Booléen | `true` si un compte-rendu de cours a été saisi par l enseignant. |
-| `typeCours` | Chaîne | `COURS`, `TP`, `TD`, `PERMANENCE`, `CONSEIL_CLASSE`, etc. |
+### Nettoyage des Noms de Salle
+Certains établissements intègrent des balises techniques dans le libellé de salle (ex: `"<L Tales 38>L 2303"`). Il convient d extraire la valeur utile `"L 2303"`.

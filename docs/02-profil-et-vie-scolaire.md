@@ -31,7 +31,7 @@ Chaque compte expose la liste des fonctionnalités activées par l établissemen
 
 ## 2. Timeline Scolaire
 
-### Endpoint : `POST /v3/Eleves/{id}/timeline.awp`
+### Endpoint : `POST /v3/Eleves/{id}/timeline.awp?verbe=get&v=4.101.4`
 
 Permet d obtenir le fil d actualité chronologique des événements récents affectant l élève (nouvelles notes publiées, devoirs ajoutés, messages non lus, modifications d emploi du temps).
 
@@ -53,14 +53,6 @@ Permet d obtenir le fil d actualité chronologique des événements récents aff
       "titre": "Nouvelle note en Mathématiques",
       "soustitre": "Devoir surveillé 1",
       "contenu": "Note : 17.5 / 20"
-    },
-    {
-      "date": "2026-09-15 11:00:00",
-      "typeElement": "DEVOIR",
-      "idElement": 9230,
-      "titre": "Devoir à rendre en Philosophie",
-      "soustitre": "Pour le 2026-09-18",
-      "contenu": "Dissertation : La liberté est-elle une illusion ?"
     }
   ]
 }
@@ -70,14 +62,14 @@ Permet d obtenir le fil d actualité chronologique des événements récents aff
 
 ## 3. Module Vie Scolaire
 
-### Endpoint : `POST /v3/eleves/{id}/viescolaire.awp`
+### Endpoint : `POST /v3/eleves/{id}/viescolaire.awp?verbe=get&v=4.101.4`
 
 #### Corps de la requête
 ```json
 {}
 ```
 
-#### Réponse type (Code 200)
+#### Réponse : Cas 1 - Données présentes (Code 200)
 
 ```json
 {
@@ -94,7 +86,7 @@ Permet d obtenir le fil d actualité chronologique des événements récents aff
         "motif": "Rendez-vous médical",
         "justifie": true,
         "par": "Responsable légal",
-        "commentaire": "Justificatif médical fourni au secrétariat."
+        "commentaire": "Justificatif médical fourni."
       },
       {
         "id": 4015,
@@ -102,30 +94,34 @@ Permet d obtenir le fil d actualité chronologique des événements récents aff
         "date": "2026-09-14",
         "displayDate": "Le 14/09/2026 à 08:12",
         "libelle": "Retard 12 minutes",
-        "motif": "Problème de transport en commun",
+        "motif": "Transport",
         "justifie": false,
         "commentaire": ""
       }
     ],
-    "sanctionsEncouragements": [
-      {
-        "id": 102,
-        "typeElement": "Encouragement",
-        "date": "2026-06-25",
-        "libelle": "Félicitations du Conseil de Classe",
-        "motif": "Excellents résultats et investissement continu",
-        "commentaire": "Trimestre remarquable."
-      }
-    ],
+    "dispenses": [],
+    "sanctionsEncouragements": [],
     "parametrage": {
       "justificationEnLigne": true,
       "absenceCommentaire": true
-    }
+    },
+    "permisPoint": null
   }
 }
 ```
 
-### Typologie des Absences et Retards
-- `typeElement` : `"Absence"` ou `"Retard"`.
-- `justifie` : Booléen (`true` si validé par la vie scolaire).
-- `displayDate` : Format textuel prêt pour l affichage.
+#### Réponse : Cas 2 - Aucune absence ou retard (Code 210)
+Lorsque le dossier de l élève ne comporte aucun événement de vie scolaire, ÉcoleDirecte renvoie le code `210` :
+```json
+{
+  "code": 210,
+  "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "message": "Aucune donnée à afficher !",
+  "data": {
+    "absencesRetards": [],
+    "dispenses": [],
+    "parametrage": { "justificationEnLigne": true },
+    "permisPoint": null
+  }
+}
+```

@@ -2,7 +2,7 @@
 
 ## 1. Notes et Moyennes Périodiques
 
-### Endpoint : `POST /v3/eleves/{id}/notes.awp`
+### Endpoint : `POST /v3/eleves/{id}/notes.awp?verbe=get&v=4.101.4`
 
 Permet d obtenir l intégralité des notes, les moyennes générales et par matière, ainsi que les statistiques de classe pour chaque période de l année scolaire.
 
@@ -12,20 +12,23 @@ Permet d obtenir l intégralité des notes, les moyennes générales et par mati
   "anneeScolaire": ""
 }
 ```
-*Note : Laisser une chaîne vide `""` sélectionne automatiquement l année scolaire en cours.*
 
-#### Structure générale de la réponse JSON (Code 200)
+#### Structure de la réponse JSON vérifiée (Code 200)
 
 ```json
 {
   "code": 200,
   "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "data": {
-    "foNote": "Note sur 20",
+    "foStat": "",
+    "parametrage": {
+      "affichageAppreciation": true,
+      "affichageRang": false
+    },
     "periodes": [
       {
         "idPeriode": "A001",
-        "periode": "Trimestre 1",
+        "periode": "1er Trimestre",
         "annuel": false,
         "dateDebut": "2026-09-01",
         "dateFin": "2026-11-30",
@@ -72,19 +75,6 @@ Permet d obtenir l intégralité des notes, les moyennes générales et par mati
         "moyenne": "13,20",
         "min": "06,00",
         "max": "19,50"
-      },
-      {
-        "id": 8502,
-        "devoir": "TP Noté d Optique",
-        "codePeriode": "A001",
-        "codeMatiere": "PH-CH",
-        "libelleMatiere": "Physique-Chimie",
-        "date": "2026-09-14",
-        "valeur": "Abs",
-        "noteSur": "20",
-        "coef": "1.00",
-        "nonSignificatif": true,
-        "typeDevoir": "TP"
       }
     ]
   }
@@ -95,57 +85,27 @@ Permet d obtenir l intégralité des notes, les moyennes générales et par mati
 
 ## 2. Typologie et Traitement des Valeurs de Notes
 
-ÉcoleDirecte utilise des chaînes de caractères avec virgule française (ex: `"15,50"`) ou des statuts spéciaux :
-
 | Valeur (`valeur`) | `nonSignificatif` | Interprétation recommandée |
 | :--- | :--- | :--- |
 | `"14,50"` | `false` | Note numérique standard. Remplacer la virgule par un point pour le calcul (`14.50`). |
 | `"Abs"` | `true` | Élève absent lors de l évaluation. Non comptabilisé dans la moyenne. |
-| `"Disp"` | `true` | Élève dispensé légitimement (ex: certificat médical en EPS). |
+| `"Disp"` | `true` | Élève dispensé légitimement. |
 | `"NE"` | `true` | Non évalué. |
-| `"0,00"` | `false` | Note zéro comptabilisée avec le coefficient spécifié. |
+| `"0,00"` | `false` | Note zéro comptabilisée. |
 
 ---
 
 ## 3. Documents Scolaires et Bulletins PDF
 
-### 1. Liste des documents : `POST /v3/eleves/{id}/documents.awp`
+### 1. Liste des documents : `POST /v3/eleves/{id}/documents.awp?verbe=get&v=4.101.4`
 
-#### Corps de la requête
-```json
-{}
-```
+- Si le module est activé : renvoie le code `200` avec la liste des `bulletins`, `releves` et `factures`.
+- Si le module n est pas souscrit par l établissement : renvoie le code `404` avec `data: null`.
 
-#### Réponse type (Code 200)
-```json
-{
-  "code": 200,
-  "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "data": {
-    "factures": [],
-    "bulletins": [
-      {
-        "id": 140021,
-        "date": "2026-06-28",
-        "titre": "Bulletin du 3ème Trimestre 2025-2026",
-        "codePeriode": "A003",
-        "type": "bulletin"
-      }
-    ],
-    "releves": [],
-    "documents": []
-  }
-}
-```
+### 2. Téléchargement d un document : `POST /v3/eleves/{id}/documents/{document_id}.awp?verbe=get&v=4.101.4`
 
-### 2. Téléchargement d un document : `POST /v3/eleves/{id}/documents/{document_id}.awp`
-
-#### Corps de la requête
 ```json
 {
   "forceDownload": 0
 }
 ```
-
-#### Réponse :
-Renvoie soit le flux binaire direct du document PDF avec l en-tête `Content-Type: application/pdf`, soit un objet JSON contenant le document encodé en Base64 dans `data.fichier`.

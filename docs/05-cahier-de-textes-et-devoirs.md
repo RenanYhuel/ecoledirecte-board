@@ -2,14 +2,9 @@
 
 ## 1. Vue Globale du Travail à Faire
 
-### Endpoint : `POST /v3/Eleves/{id}/cahierdetexte.awp`
+### Endpoint : `POST /v3/Eleves/{id}/cahierdetexte.awp?verbe=get&v=4.101.4`
 
-Permet d obtenir l ensemble des devoirs programmés pour les jours à venir, indexés par date d échéance.
-
-#### Corps de la requête
-```json
-{}
-```
+Renvoie un dictionnaire dont les clés sont les dates d échéance (`YYYY-MM-DD`) et les valeurs les tableaux de devoirs.
 
 #### Réponse type (Code 200)
 
@@ -33,22 +28,6 @@ Permet d obtenir l ensemble des devoirs programmés pour les jours à venir, ind
         "type": "Exercice",
         "nbPieceJointe": 1
       }
-    ],
-    "2026-09-18": [
-      {
-        "id": 9504,
-        "matiere": "Philosophie",
-        "codeMatiere": "PHILO",
-        "aFaire": true,
-        "idDevoir": 9504,
-        "donneLe": "2026-09-11",
-        "pourLe": "2026-09-18",
-        "effectue": true,
-        "interrogation": true,
-        "rendreEnLigne": false,
-        "type": "Évaluation",
-        "nbPieceJointe": 0
-      }
     ]
   }
 }
@@ -58,14 +37,7 @@ Permet d obtenir l ensemble des devoirs programmés pour les jours à venir, ind
 
 ## 2. Détail Quotidien et Contenu de Séance
 
-### Endpoint : `POST /v3/Eleves/{id}/cahierdetexte/{date}.awp`
-
-Récupère le détail exhaustif pour une date donnée (`YYYY-MM-DD`), incluant le contenu pédagogique de chaque cours dispensé, la description complète des devoirs (format HTML) et la liste des pièces jointes.
-
-#### Corps de la requête
-```json
-{}
-```
+### Endpoint : `POST /v3/Eleves/{id}/cahierdetexte/{date}.awp?verbe=get&v=4.101.4`
 
 #### Réponse type (Code 200)
 
@@ -84,22 +56,20 @@ Récupère le détail exhaustif pour une date donnée (`YYYY-MM-DD`), incluant l
         "aFaire": {
           "id": 9501,
           "donneLe": "2026-09-12",
-          "contenu": "<p>Faire les exercices <strong>12 et 14 page 85</strong>.<br/>Réviser les théorèmes de continuité.</p>",
+          "contenu": "<p>Faire les exercices <strong>12 et 14 page 85</strong>.</p>",
           "effectue": false,
           "rendreEnLigne": false,
           "documents": [
             {
               "id": 40182,
-              "libelle": "Fiche_Exercices_Continuite.pdf",
-              "type": "DOCUMENT",
-              "signature": "abcd1234ef",
+              "libelle": "Fiche_Exercices.pdf",
               "taille": 245760
             }
           ]
         },
         "contenuDeSeance": {
           "id": 8802,
-          "contenu": "<p>Chapitre 2 : Théorème des valeurs intermédiaires.<br/>Démonstration du corollaire d injectivité.</p>",
+          "contenu": "<p>Chapitre 2 : Démonstrations et applications.</p>",
           "documents": []
         }
       }
@@ -110,29 +80,13 @@ Récupère le détail exhaustif pour une date donnée (`YYYY-MM-DD`), incluant l
 
 ---
 
-## 3. Validation et Statut d un Devoir
+## 3. Validation d un Devoir
 
-### Endpoint : `PUT /v3/Eleves/{id}/cahierdetexte.awp`
+### Endpoint : `PUT /v3/Eleves/{id}/cahierdetexte.awp?verbe=put&v=4.101.4`
 
-Permet à l élève de cocher ou décocher un travail personnel comme effectué sur son compte.
-
-#### Corps de la requête
 ```json
 {
   "idDevoir": 9501,
   "effectue": true
-}
-```
-
-- `idDevoir` (entier) : Identifiant unique du devoir.
-- `effectue` (booléen) : `true` pour marquer comme fait, `false` pour remettre à faire.
-
-#### Réponse type (Code 200)
-```json
-{
-  "code": 200,
-  "token": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  "data": {},
-  "message": ""
 }
 ```
