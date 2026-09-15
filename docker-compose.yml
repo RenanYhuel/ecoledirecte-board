@@ -17,5 +17,7 @@ services:
       context: ./dashboard
       dockerfile: Dockerfile
     restart: unless-stopped
+    ports:
+      - "49721:80"
     depends_on:
       - backend
