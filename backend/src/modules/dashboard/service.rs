@@ -57,17 +57,20 @@ impl DashboardService {
         self.auth_service.ensure_authenticated().await?;
 
         let session = self.auth_service.get_current_session();
-        let student_account: Option<AccountInfo> = match &session {
+        let student_account = match &session {
             Some(crate::auth::models::AuthResponse::Authenticated { current_account, accounts, .. }) => {
                 current_account.clone().or_else(|| accounts.first().cloned())
             }
             _ => None,
         };
 
+        let student = student_account.ok_or_else(|| {
+            AppError::Unauthorized("Aucun compte élève disponible dans la session ÉcoleDirecte".to_string())
+        })?;
+
         let student_id = explicit_student_id
             .or_else(|| get_ecoledirecte_student_id())
-            .or_else(|| student_account.as_ref().map(|a| a.id))
-            .unwrap_or(0);
+            .unwrap_or(student.id);
 
         let now = chrono::Local::now();
         let today_str = now.format("%Y-%m-%d").to_string();
@@ -277,7 +280,7 @@ impl DashboardService {
         let authenticated = self.http.get_token().is_some();
 
         Ok(DashboardOverview {
-            student: student_account,
+            student: Some(student),
             notes: notes_summary,
             homework: homework_summary,
             school_life: school_life_summary,

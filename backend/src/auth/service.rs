@@ -232,7 +232,7 @@ impl AuthService {
 
     pub async fn ensure_authenticated(&self) -> Result<String, AppError> {
         if let Some(token) = self.http.get_token() {
-            if !token.trim().is_empty() {
+            if !token.trim().is_empty() && self.get_current_session().is_some() {
                 return Ok(token);
             }
         }
