@@ -65,7 +65,7 @@ impl IntoResponse for AppError {
         let (status, code, message, details) = match self {
             AppError::EcoleDirecte { code, message, data } => {
                 let http_status = match code {
-                    250 => StatusCode::OK,
+                    250 => StatusCode::UNAUTHORIZED,
                     505 => StatusCode::UNAUTHORIZED,
                     520 | 525 => StatusCode::UNAUTHORIZED,
                     404 => StatusCode::NOT_FOUND,

@@ -31,9 +31,15 @@ export function App() {
 
     try {
       const res = await fetchOverview();
-      setData(res);
-      setTwoFactorChallenge(null);
-      setLastUpdated(new Date());
+      if (res.code === 250 && res.details) {
+        setTwoFactorChallenge(res.details);
+      } else if (res.data) {
+        setData(res.data);
+        setTwoFactorChallenge(null);
+        setLastUpdated(new Date());
+      } else {
+        setError(res.message || 'Erreur de chargement des données');
+      }
     } catch (err: any) {
       console.error('Failed to load dashboard overview:', err);
       const errData = err?.response?.data;

@@ -8,10 +8,18 @@ export const apiClient = axios.create({
   timeout: 15000,
 });
 
-export const fetchOverview = async (studentId?: number): Promise<DashboardOverview> => {
+export interface OverviewApiResponse {
+  success: boolean;
+  code?: number;
+  message?: string;
+  data?: DashboardOverview;
+  details?: QcmChallenge;
+}
+
+export const fetchOverview = async (studentId?: number): Promise<OverviewApiResponse> => {
   const params = studentId ? { student_id: studentId } : {};
-  const response = await apiClient.get<{ success: boolean; data: DashboardOverview }>('/dashboard/overview', { params });
-  return response.data.data;
+  const response = await apiClient.get<OverviewApiResponse>('/dashboard/overview', { params });
+  return response.data;
 };
 
 export const toggleHomework = async (
