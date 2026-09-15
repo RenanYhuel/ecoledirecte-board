@@ -66,7 +66,7 @@ export const SecurityChallengeView: React.FC<SecurityChallengeViewProps> = ({
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
           {propositions.map((prop, idx) => {
             const isSelected = selectedChoice === prop;
             return (
