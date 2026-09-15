@@ -1,9 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import { IdentityClockCard } from './components/IdentityClockCard';
 import { TimetableStrip } from './components/TimetableStrip';
 import { HomeworkCard } from './components/HomeworkCard';
 import { GradesCard } from './components/GradesCard';
 import { MessagesCard } from './components/MessagesCard';
+import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { fetchOverview, toggleHomework, toggleMessageRead } from './services/api';
 import type { DashboardOverview } from './types/dashboard';
@@ -11,12 +12,18 @@ import type { DashboardOverview } from './types/dashboard';
 export function App() {
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const loadDashboard = useCallback(async (showLoader = true) => {
-    if (showLoader) setIsLoading(true);
+  const loadDashboard = useCallback(async (isInitial = false) => {
+    if (isInitial) {
+      setIsLoading(true);
+    } else {
+      setIsSyncing(true);
+    }
     setError(null);
+
     try {
       const res = await fetchOverview();
       setData(res);
@@ -25,7 +32,11 @@ export function App() {
       console.error('Failed to load dashboard overview:', err);
       setError(err?.message || 'Erreur de connexion au serveur proxy ÉcoleDirecte');
     } finally {
-      if (showLoader) setIsLoading(false);
+      if (isInitial) {
+        setIsLoading(false);
+      } else {
+        setIsSyncing(false);
+      }
     }
   }, []);
 
@@ -110,19 +121,27 @@ export function App() {
   }, [loadDashboard]);
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col p-3.5 bg-[#f1f5f9] select-none box-border font-sans">
+    <div className="h-screen w-screen overflow-hidden flex flex-col p-3.5 bg-[#f1f5f9] select-none box-border font-sans relative">
+      {isSyncing && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 animate-pulse z-50 opacity-80" />
+      )}
+
       {isLoading && !data ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white border-2 border-slate-200 rounded-2xl">
-          <div className="h-12 w-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-3 animate-bounce font-bold text-sm">
+        <DashboardSkeleton />
+      ) : error && !data ? (
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white border-2 border-rose-300 rounded-2xl shadow-sm">
+          <div className="p-3 rounded-2xl bg-rose-50 text-rose-600 mb-3 font-bold text-sm">
             ED
           </div>
-          <h2 className="text-sm font-extrabold text-slate-900">Synchronisation ÉcoleDirecte...</h2>
-          <p className="text-xs text-slate-500 mt-1">Connexion en direct aux services ÉcoleDirecte</p>
-        </div>
-      ) : error && !data ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white border-2 border-rose-300 rounded-2xl">
-          <h2 className="text-sm font-bold text-rose-900">Erreur de connexion</h2>
-          <p className="text-xs text-rose-600 font-medium mt-1">{error}</p>
+          <h2 className="text-sm font-bold text-rose-950">Erreur de synchronisation</h2>
+          <p className="text-xs text-rose-600 font-medium mt-1 max-w-sm">{error}</p>
+          <button
+            type="button"
+            onClick={() => loadDashboard(true)}
+            className="mt-4 px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 cursor-pointer active:scale-95 transition-all"
+          >
+            Réessayer
+          </button>
         </div>
       ) : (
         <main className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-3.5">
