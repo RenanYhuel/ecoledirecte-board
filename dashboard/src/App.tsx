@@ -7,14 +7,15 @@ import { MessagesCard } from './components/MessagesCard';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { SecurityChallengeView } from './components/SecurityChallengeView';
-import { fetchOverview, toggleHomework, toggleMessageRead } from './services/api';
+import { fetchOverview, submitDoubleAuth, toggleHomework, toggleMessageRead } from './services/api';
+import type { QcmChallenge } from './services/api';
 import type { DashboardOverview } from './types/dashboard';
 
-const SHOW_2FA_TEST_PREVIEW = true;
-
 export function App() {
-  const [show2faPreview, setShow2faPreview] = useState<boolean>(SHOW_2FA_TEST_PREVIEW);
   const [data, setData] = useState<DashboardOverview | null>(null);
+  const [twoFactorChallenge, setTwoFactorChallenge] = useState<QcmChallenge | null>(null);
+  const [is2faSubmitting, setIs2faSubmitting] = useState<boolean>(false);
+  const [twoFactorError, setTwoFactorError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,10 +32,16 @@ export function App() {
     try {
       const res = await fetchOverview();
       setData(res);
+      setTwoFactorChallenge(null);
       setLastUpdated(new Date());
     } catch (err: any) {
       console.error('Failed to load dashboard overview:', err);
-      setError(err?.message || 'Erreur de connexion au serveur proxy ÉcoleDirecte');
+      const errData = err?.response?.data;
+      if (errData?.code === 250 && errData?.details) {
+        setTwoFactorChallenge(errData.details as QcmChallenge);
+      } else {
+        setError(errData?.message || err?.message || 'Erreur de connexion au serveur proxy ÉcoleDirecte');
+      }
     } finally {
       if (isInitial) {
         setIsLoading(false);
@@ -43,6 +50,25 @@ export function App() {
       }
     }
   }, []);
+
+  const handle2faSubmit = async (choiceRaw: string) => {
+    setIs2faSubmitting(true);
+    setTwoFactorError(null);
+    try {
+      const success = await submitDoubleAuth(choiceRaw);
+      if (success) {
+        setTwoFactorChallenge(null);
+        await loadDashboard(true);
+      } else {
+        setTwoFactorError('Réponse 2FA rejetée par ÉcoleDirecte. Veuillez réessayer.');
+      }
+    } catch (err: any) {
+      console.error('Failed to submit 2FA:', err);
+      setTwoFactorError(err?.response?.data?.message || err?.message || 'Échec de validation de la réponse 2FA');
+    } finally {
+      setIs2faSubmitting(false);
+    }
+  };
 
   const handleToggleHomework = useCallback(async (homeworkId: number, isDone: boolean) => {
     setData((prev) => {
@@ -124,34 +150,19 @@ export function App() {
     return () => clearInterval(interval);
   }, [loadDashboard]);
 
-  if (show2faPreview) {
+  if (twoFactorChallenge) {
     return (
       <SecurityChallengeView
-        question="Quel est le nom de votre professeur principal ?"
-        propositions={["M. Dupont (Mathématiques)", "Mme Martin (Français)", "M. Bernard (Histoire-Géo)", "Mme Thomas (Anglais)"]}
-        onSubmit={async (_choice) => {
-          await new Promise((resolve) => setTimeout(resolve, 800));
-          setTimeout(() => {
-            setShow2faPreview(false);
-          }, 600);
-        }}
-        onResetTest={() => setShow2faPreview(false)}
+        challenge={twoFactorChallenge}
+        onSubmit={handle2faSubmit}
+        isLoading={is2faSubmitting}
+        errorMessage={twoFactorError}
       />
     );
   }
 
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col p-3.5 bg-[#f1f5f9] select-none box-border font-sans relative">
-      <div className="absolute top-2 right-4 z-50">
-        <button
-          type="button"
-          onClick={() => setShow2faPreview(true)}
-          className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-200/80 hover:bg-slate-300 text-slate-700 transition-colors border border-slate-300 shadow-sm"
-        >
-          Aperçu 2FA
-        </button>
-      </div>
-
       {isSyncing && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 animate-pulse z-50 opacity-80" />
       )}
@@ -159,7 +170,7 @@ export function App() {
       {isLoading && !data ? (
         <DashboardSkeleton />
       ) : error && !data ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white border-2 border-rose-300 rounded-2xl shadow-sm">
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-white border-2 border-rose-300 rounded-2xl">
           <div className="p-3 rounded-2xl bg-rose-50 text-rose-600 mb-3 font-bold text-sm">
             ED
           </div>

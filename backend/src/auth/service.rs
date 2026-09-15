@@ -143,9 +143,22 @@ impl AuthService {
 
         self.http.bootstrap_gtk().await?;
 
+        let username = get_ecoledirecte_username();
+        let password = get_ecoledirecte_password();
+        let identifiant = req
+            .identifiant
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .unwrap_or(&username);
+        let motdepasse = req
+            .motdepasse
+            .as_deref()
+            .filter(|s| !s.is_empty())
+            .unwrap_or(&password);
+
         let final_payload = serde_json::json!({
-            "identifiant": req.identifiant,
-            "motdepasse": req.motdepasse,
+            "identifiant": identifiant,
+            "motdepasse": motdepasse,
             "isReLogin": false,
             "uuid": "",
             "cn": cn,
@@ -202,10 +215,18 @@ impl AuthService {
 
         match login_res {
             AuthResponse::Authenticated { token, .. } => Ok(token),
-            AuthResponse::DoubleAuthRequired { .. } => {
-                Err(AppError::Unauthorized("2FA challenge required - double authentification nécessaire".to_string()))
+            AuthResponse::DoubleAuthRequired { challenge, .. } => {
+                Err(AppError::EcoleDirecte {
+                    code: 250,
+                    message: "Double authentification requise".to_string(),
+                    data: serde_json::to_value(&challenge).ok(),
+                })
             }
-            AuthResponse::Error { message, .. } => Err(AppError::Unauthorized(message)),
+            AuthResponse::Error { code, message } => Err(AppError::EcoleDirecte {
+                code,
+                message,
+                data: None,
+            }),
         }
     }
 

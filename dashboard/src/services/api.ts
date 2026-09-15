@@ -47,3 +47,21 @@ export const toggleMessageRead = async (
   );
   return response.data.success;
 };
+
+export interface QcmProposition {
+  raw: string;
+  decoded: string;
+}
+
+export interface QcmChallenge {
+  question_raw: string;
+  question_decoded: string;
+  propositions: QcmProposition[];
+}
+
+export const submitDoubleAuth = async (choiceRaw: string): Promise<boolean> => {
+  const response = await apiClient.post<{ success: boolean; result: any }>('/auth/doubleauth', {
+    choix: choiceRaw,
+  });
+  return response.data.success && response.data.result?.status === 'authenticated';
+};

@@ -31,8 +31,10 @@ pub struct QcmChallenge {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DoubleAuthSubmitRequest {
     pub choix: String,
-    pub identifiant: String,
-    pub motdepasse: String,
+    #[serde(default)]
+    pub identifiant: Option<String>,
+    #[serde(default)]
+    pub motdepasse: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

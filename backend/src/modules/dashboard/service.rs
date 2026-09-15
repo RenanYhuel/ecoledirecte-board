@@ -54,7 +54,7 @@ impl DashboardService {
     }
 
     pub async fn get_overview(&self, explicit_student_id: Option<u64>) -> Result<DashboardOverview, AppError> {
-        let _ = self.auth_service.ensure_authenticated().await;
+        self.auth_service.ensure_authenticated().await?;
 
         let session = self.auth_service.get_current_session();
         let student_account: Option<AccountInfo> = match &session {
