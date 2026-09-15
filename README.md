@@ -1,4 +1,4 @@
-﻿# ÉcoleDirecte Cockpit Dashboard
+# ÉcoleDirecte Cockpit Dashboard
 
 Tableau de bord en temps réel pour ÉcoleDirecte, conçu pour fonctionner en mode cockpit sur un écran dédié (haute densité d'affichage, auto-défilement ping-pong fluide sans barre de défilement apparente, 100vh sans débordement).
 
@@ -28,7 +28,6 @@ Renseignez vos identifiants dans le fichier `.env` :
 ```env
 ECOLEDIRECTE_USERNAME=votre_identifiant
 ECOLEDIRECTE_PASSWORD=votre_mot_de_passe
-ECOLEDIRECTE_AUTO_SOLVE_2FA=true
 SERVER_PORT=3001
 VITE_API_URL=/api
 ```

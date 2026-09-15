@@ -3,7 +3,7 @@ use crate::auth::models::{
     QcmProposition,
 };
 use crate::client::EcoleDirecteHttpClient;
-use crate::config::{get_auto_solve_2fa, get_ecoledirecte_password, get_ecoledirecte_username, APP_VERSION};
+use crate::config::{get_ecoledirecte_password, get_ecoledirecte_username, APP_VERSION};
 use crate::error::AppError;
 use base64::prelude::*;
 use serde_json::Value;
@@ -46,19 +46,6 @@ impl AuthService {
         if resp.code == 250 {
             info!("Double auth required (code 250)");
             let challenge = self.fetch_qcm_challenge().await?;
-
-            if req.auto_solve_2fa {
-                if let Some(matching_choice) = self.try_auto_solve(&challenge) {
-                    info!("Auto-solving 2FA challenge");
-                    return self
-                        .submit_double_auth(&DoubleAuthSubmitRequest {
-                            choix: matching_choice.raw.clone(),
-                            identifiant: req.identifiant.clone(),
-                            motdepasse: req.motdepasse.clone(),
-                        })
-                        .await;
-                }
-            }
 
             return Ok(AuthResponse::DoubleAuthRequired {
                 challenge,
@@ -117,46 +104,6 @@ impl AuthService {
             message: resp.message.unwrap_or_else(|| "Impossible de charger le challenge 2FA".to_string()),
             data: None,
         })
-    }
-
-    pub fn try_auto_solve<'a>(&self, challenge: &'a QcmChallenge) -> Option<&'a QcmProposition> {
-        let q = challenge.question_decoded.to_lowercase();
-        let q_ascii = unidecode_lowercase(&q);
-
-        for prop in &challenge.propositions {
-            let p = prop.decoded.to_lowercase();
-            let p_ascii = unidecode_lowercase(&p);
-
-            if (q_ascii.contains("rouge") && (p_ascii.contains("rouge") || p_ascii.contains("red")))
-                || (q_ascii.contains("bleu") && (p_ascii.contains("bleu") || p_ascii.contains("blue")))
-                || (q_ascii.contains("vert") && (p_ascii.contains("vert") || p_ascii.contains("green")))
-                || (q_ascii.contains("jaune") && (p_ascii.contains("jaune") || p_ascii.contains("yellow")))
-                || (q_ascii.contains("noir") && (p_ascii.contains("noir") || p_ascii.contains("black")))
-                || (q_ascii.contains("blanc") && (p_ascii.contains("blanc") || p_ascii.contains("white")))
-                || (q_ascii.contains("orange") && p_ascii.contains("orange"))
-                || (q_ascii.contains("rose") && (p_ascii.contains("rose") || p_ascii.contains("pink")))
-            {
-                return Some(prop);
-            }
-
-            if (q_ascii.contains("chien") && p_ascii.contains("chien"))
-                || (q_ascii.contains("chat") && p_ascii.contains("chat"))
-                || (q_ascii.contains("cheval") && p_ascii.contains("cheval"))
-                || (q_ascii.contains("oiseau") && p_ascii.contains("oiseau"))
-                || (q_ascii.contains("poisson") && p_ascii.contains("poisson"))
-            {
-                return Some(prop);
-            }
-
-            let q_tokens: Vec<&str> = q_ascii.split(|c: char| !c.is_alphanumeric()).filter(|s| s.len() > 3).collect();
-            for tok in q_tokens {
-                if p_ascii.contains(tok) {
-                    return Some(prop);
-                }
-            }
-        }
-
-        challenge.propositions.first()
     }
 
     pub async fn submit_double_auth(
@@ -238,7 +185,6 @@ impl AuthService {
 
         let username = get_ecoledirecte_username();
         let password = get_ecoledirecte_password();
-        let auto_solve = get_auto_solve_2fa();
 
         if username.is_empty() || password.is_empty() {
             return Err(AppError::Unauthorized(
@@ -250,7 +196,6 @@ impl AuthService {
             .login(&LoginRequest {
                 identifiant: username,
                 motdepasse: password,
-                auto_solve_2fa: auto_solve,
                 fa: None,
             })
             .await?;
@@ -258,7 +203,7 @@ impl AuthService {
         match login_res {
             AuthResponse::Authenticated { token, .. } => Ok(token),
             AuthResponse::DoubleAuthRequired { .. } => {
-                Err(AppError::Unauthorized("2FA challenge required but could not be auto-solved".to_string()))
+                Err(AppError::Unauthorized("2FA challenge required - double authentification nécessaire".to_string()))
             }
             AuthResponse::Error { message, .. } => Err(AppError::Unauthorized(message)),
         }
@@ -326,20 +271,6 @@ impl AuthService {
             current_account: current,
         })
     }
-}
-
-fn unidecode_lowercase(s: &str) -> String {
-    s.chars()
-        .map(|c| match c {
-            'à' | 'â' | 'ä' => 'a',
-            'é' | 'è' | 'ê' | 'ë' => 'e',
-            'î' | 'ï' => 'i',
-            'ô' | 'ö' => 'o',
-            'ù' | 'û' | 'ü' => 'u',
-            'ç' => 'c',
-            _ => c,
-        })
-        .collect()
 }
 
 fn parse_account_info(val: &Value) -> Option<AccountInfo> {

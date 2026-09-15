@@ -1,11 +1,9 @@
-﻿use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LoginRequest {
     pub identifiant: String,
     pub motdepasse: String,
-    #[serde(default)]
-    pub auto_solve_2fa: bool,
     pub fa: Option<Vec<LoginFactor>>,
 }
 

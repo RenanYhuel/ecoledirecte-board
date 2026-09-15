@@ -25,9 +25,3 @@ pub fn get_ecoledirecte_student_id() -> Option<u64> {
         .ok()
         .and_then(|v| v.parse::<u64>().ok())
 }
-
-pub fn get_auto_solve_2fa() -> bool {
-    env::var("ECOLEDIRECTE_AUTO_SOLVE_2FA")
-        .map(|v| v.to_lowercase() == "true" || v == "1")
-        .unwrap_or(true)
-}

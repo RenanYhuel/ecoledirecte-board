@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { IdentityClockCard } from './components/IdentityClockCard';
 import { TimetableStrip } from './components/TimetableStrip';
 import { HomeworkCard } from './components/HomeworkCard';
@@ -6,10 +6,14 @@ import { GradesCard } from './components/GradesCard';
 import { MessagesCard } from './components/MessagesCard';
 import { DashboardSkeleton } from './components/DashboardSkeleton';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { SecurityChallengeView } from './components/SecurityChallengeView';
 import { fetchOverview, toggleHomework, toggleMessageRead } from './services/api';
 import type { DashboardOverview } from './types/dashboard';
 
+const SHOW_2FA_TEST_PREVIEW = true;
+
 export function App() {
+  const [show2faPreview, setShow2faPreview] = useState<boolean>(SHOW_2FA_TEST_PREVIEW);
   const [data, setData] = useState<DashboardOverview | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
@@ -120,8 +124,34 @@ export function App() {
     return () => clearInterval(interval);
   }, [loadDashboard]);
 
+  if (show2faPreview) {
+    return (
+      <SecurityChallengeView
+        question="Quel est le nom de votre professeur principal ?"
+        propositions={["M. Dupont (Mathématiques)", "Mme Martin (Français)", "M. Bernard (Histoire-Géo)", "Mme Thomas (Anglais)"]}
+        onSubmit={async (_choice) => {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+          setTimeout(() => {
+            setShow2faPreview(false);
+          }, 600);
+        }}
+        onResetTest={() => setShow2faPreview(false)}
+      />
+    );
+  }
+
   return (
     <div className="h-screen w-screen overflow-hidden flex flex-col p-3.5 bg-[#f1f5f9] select-none box-border font-sans relative">
+      <div className="absolute top-2 right-4 z-50">
+        <button
+          type="button"
+          onClick={() => setShow2faPreview(true)}
+          className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-200/80 hover:bg-slate-300 text-slate-700 transition-colors border border-slate-300 shadow-sm"
+        >
+          Aperçu 2FA
+        </button>
+      </div>
+
       {isSyncing && (
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 animate-pulse z-50 opacity-80" />
       )}
