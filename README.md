@@ -1,11 +1,11 @@
-# ÉcoleDirecte Cockpit Dashboard
+# ÉcoleDirecte Board
 
 Tableau de bord en temps réel pour ÉcoleDirecte, conçu pour fonctionner en mode cockpit sur un écran dédié (haute densité d'affichage, auto-défilement ping-pong fluide sans barre de défilement apparente, 100vh sans débordement).
 
 ## Architecture
 
 Le projet est composé de deux parties autonomes :
-- **Backend (Rust / Axum / Tokio / Reqwest)** : Passerelle API sécurisée assurant l'authentification avec ÉcoleDirecte, le renouvellement automatique des jetons de session, la résolution automatique du challenge 2FA par reconnaissance sémantique, et l'agrégation concurrente des données du tableau de bord.
+- **Backend (Rust / Axum / Tokio / Reqwest)** : Passerelle API sécurisée assurant l'authentification avec ÉcoleDirecte, le renouvellement automatique des jetons de session, la gestion du challenge 2FA, et l'agrégation concurrente des données du tableau de bord.
 - **Dashboard (React 19 / TypeScript / Vite / Tailwind CSS)** : Interface cockpit en thème clair structurée en Bento Grid responsive.
 
 Aucune donnée n'est codée en dur dans le code source : toute l'authentification et les réglages transitent par les variables d'environnement (`.env`).
@@ -13,7 +13,7 @@ Aucune donnée n'est codée en dur dans le code source : toute l'authentificatio
 ## Prérequis
 
 - **Option A (Docker)** : Docker et Docker Compose
-- **Option B (Exécution locale directe)** : Rust 1.80+ (Cargo) et Node.js 20+ (npm)
+- **Option B (Exécution locale directe)** : Rust 1.80+ (Cargo) et Node.js 20+ (pnpm)
 
 ## Configuration (.env)
 
