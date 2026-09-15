@@ -4,7 +4,7 @@
 
 ### Endpoint : `POST /v3/Eleves/{id}/cahierdetexte.awp?verbe=get&v=4.101.4`
 
-Renvoie un dictionnaire dont les clés sont les dates d échéance (`YYYY-MM-DD`) et les valeurs les tableaux de devoirs.
+Renvoie un dictionnaire dont les clés sont les dates d'échéance (`YYYY-MM-DD`) et les valeurs les tableaux de devoirs.
 
 #### Réponse type (Code 200)
 
@@ -80,7 +80,7 @@ Renvoie un dictionnaire dont les clés sont les dates d échéance (`YYYY-MM-DD`
 
 ---
 
-## 3. Validation d un Devoir
+## 3. Validation d'un Devoir
 
 ### Endpoint : `PUT /v3/Eleves/{id}/cahierdetexte.awp?verbe=put&v=4.101.4`
 

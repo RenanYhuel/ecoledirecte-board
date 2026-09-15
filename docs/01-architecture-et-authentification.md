@@ -2,12 +2,12 @@
 
 ## 1. Principes Généraux du Protocole
 
-L API d ÉcoleDirecte (version 3) est une API REST privée basée sur HTTPS.
+L'API d'ÉcoleDirecte (version 3) est une API REST privée basée sur HTTPS.
 
 - **URL de base** : `https://api.ecoledirecte.com/v3/`
 - **Méthode HTTP prédominante** : `POST` (utilisée pour les lectures et écritures).
-- **Paramètres d URL obligatoires** : La plupart des endpoints exigent les paramètres de requête `verbe` et `v` dans l URL (ex: `?verbe=get&v=4.101.4` ou `?verbe=put&v=4.101.4`). Leur omission renvoie le code applicatif `225` (*Paramètres spécifiés incorrects*).
-- **Format d encodage des données** : Les requêtes transmettent leur charge utile (payload) sous la forme d un champ de formulaire URL-encodé nommé `data`, dont la valeur est un objet JSON sérialisé :
+- **Paramètres d'URL obligatoires** : La plupart des endpoints exigent les paramètres de requête `verbe` et `v` dans l'URL (ex : `?verbe=get&v=4.101.4` ou `?verbe=put&v=4.101.4`). Leur omission renvoie le code applicatif `225` (*Paramètres spécifiés incorrects !*).
+- **Format d'encodage des données** : Les requêtes transmettent leur charge utile (payload) sous la forme d'un champ de formulaire URL-encodé nommé `data`, dont la valeur est un objet JSON sérialisé :
   ```http
   POST /v3/login.awp?v=4.101.4 HTTP/1.1
   Host: api.ecoledirecte.com
@@ -21,18 +21,18 @@ L API d ÉcoleDirecte (version 3) est une API REST privée basée sur HTTPS.
 
 | En-tête | Type / Format | Description |
 | :--- | :--- | :--- |
-| `User-Agent` | Chaîne | Requis : User-Agent de navigateur moderne (ex: Chrome/Windows) pour éviter les rejets pare-feu. |
+| `User-Agent` | Chaîne | Requis : User-Agent de navigateur moderne (ex : Chrome/Windows) pour éviter les rejets pare-feu. |
 | `Content-Type` | Chaîne | `application/x-www-form-urlencoded` |
 | `Accept` | Chaîne | `application/json, text/plain, */*` |
-| `X-Token` | UUID / Chaîne | Jeton de session retourné lors de l authentification. Requis pour toute requête ultérieure. |
+| `X-Token` | UUID / Chaîne | Jeton de session retourné lors de l'authentification. Requis pour toute requête ultérieure. |
 
 ---
 
-## 2. Processus d Authentification Initiale
+## 2. Processus d'Authentification Initiale
 
-### Étape 1 : Initialisation GTK (Optionnel / Recommandé)
+### Étape 1 : Initialisation GTK (Recommandé)
 - **Requête** : `GET /v3/login.awp?gtk=1&v=4.101.4`
-- **Rôle** : Permet de négocier les cookies de session et le jeton de pré-authentification `x-gtk`.
+- **Rôle** : Permet d'initialiser les cookies de session et le jeton de pré-authentification `x-gtk`.
 
 ### Étape 2 : Authentification par identifiants
 - **Endpoint** : `POST /v3/login.awp?v=4.101.4`
@@ -89,7 +89,7 @@ L API d ÉcoleDirecte (version 3) est une API REST privée basée sur HTTPS.
 
 ## 3. Double Authentification (2FA / Challenge QCM)
 
-Lorsque la double authentification est demandée par ÉcoleDirecte, le serveur renvoie le code statut `250` accompagné d une question et d un ensemble de propositions encodées en Base64.
+Lorsque la double authentification est demandée par ÉcoleDirecte, le serveur renvoie le code statut `250` accompagné d'une question et d'un ensemble de propositions encodées en Base64.
 
 ### Réponse avec défi 2FA (Code 250) :
 
@@ -129,7 +129,7 @@ Lorsque la double authentification est demandée par ÉcoleDirecte, le serveur r
 - `X-Token: jeton_temporaire_challenge`
 
 #### Réponse après validation réussie (Code 200) :
-Renvoie le jeton de session définitif et l objet complet `data.accounts`.
+Renvoie le jeton de session définitif et l'objet complet `data.accounts`.
 
 ---
 
@@ -141,7 +141,7 @@ sequenceDiagram
     participant Proxy
     participant EcoleDirecte
 
-    Client->>Proxy: Requête de données (ex: Notes)
+    Client->>Proxy: Requête de données (ex : Notes)
     Proxy->>EcoleDirecte: POST /v3/eleves/{id}/notes.awp?verbe=get&v=4.101.4 (X-Token: T1)
     alt Jeton valide (Code 200)
         EcoleDirecte-->>Proxy: Réponse JSON (X-Token: T2 renouvelé)
@@ -157,5 +157,5 @@ sequenceDiagram
 ```
 
 ### Points Clés :
-1. **Renouvellement continu (Sliding Expiration)** : Chaque réponse réussie d ÉcoleDirecte fournit un nouveau jeton dans le champ racine `token`. Il doit écraser l ancien jeton stocké pour les requêtes suivantes.
-2. **Gestion de l erreur 520** : Le code `520` signifie que la session a expiré côté serveur. Le client doit relancer automatiquement la séquence d authentification complète sans interrompre l expérience utilisateur.
+1. **Renouvellement continu (Sliding Expiration)** : Chaque réponse réussie d'ÉcoleDirecte fournit un nouveau jeton dans le champ racine `token`. Il doit écraser l'ancien jeton stocké pour les requêtes suivantes.
+2. **Gestion de l'erreur 520** : Le code `520` signifie que la session a expiré côté serveur. Le client doit relancer automatiquement la séquence d'authentification complète sans interrompre l'expérience utilisateur.

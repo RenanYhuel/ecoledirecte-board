@@ -52,7 +52,7 @@
 
 ---
 
-## 2. Lecture Complète d un Message
+## 2. Lecture Complète d'un Message
 
 ### Endpoint : `POST /v3/eleves/{id}/messages/{message_id}.awp?verbe=get&v=4.101.4`
 
@@ -64,7 +64,7 @@
 
 ---
 
-## 3. Modification de l État de Lecture
+## 3. Modification de l'État de Lecture
 
 ### Endpoint : `PUT /v3/eleves/{id}/messages.awp?verbe=put&v=4.101.4`
 

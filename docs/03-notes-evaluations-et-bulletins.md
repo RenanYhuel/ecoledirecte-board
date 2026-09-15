@@ -4,7 +4,7 @@
 
 ### Endpoint : `POST /v3/eleves/{id}/notes.awp?verbe=get&v=4.101.4`
 
-Permet d obtenir l intégralité des notes, les moyennes générales et par matière, ainsi que les statistiques de classe pour chaque période de l année scolaire.
+Permet d'obtenir l'intégralité des notes, les moyennes générales et par matière, ainsi que les statistiques de classe pour chaque période de l'année scolaire.
 
 #### Corps de la requête
 ```json
@@ -88,7 +88,7 @@ Permet d obtenir l intégralité des notes, les moyennes générales et par mati
 | Valeur (`valeur`) | `nonSignificatif` | Interprétation recommandée |
 | :--- | :--- | :--- |
 | `"14,50"` | `false` | Note numérique standard. Remplacer la virgule par un point pour le calcul (`14.50`). |
-| `"Abs"` | `true` | Élève absent lors de l évaluation. Non comptabilisé dans la moyenne. |
+| `"Abs"` | `true` | Élève absent lors de l'évaluation. Non comptabilisé dans la moyenne. |
 | `"Disp"` | `true` | Élève dispensé légitimement. |
 | `"NE"` | `true` | Non évalué. |
 | `"0,00"` | `false` | Note zéro comptabilisée. |
@@ -100,9 +100,9 @@ Permet d obtenir l intégralité des notes, les moyennes générales et par mati
 ### 1. Liste des documents : `POST /v3/eleves/{id}/documents.awp?verbe=get&v=4.101.4`
 
 - Si le module est activé : renvoie le code `200` avec la liste des `bulletins`, `releves` et `factures`.
-- Si le module n est pas souscrit par l établissement : renvoie le code `404` avec `data: null`.
+- Si le module n'est pas souscrit par l'établissement : renvoie le code `404` avec `data: null`.
 
-### 2. Téléchargement d un document : `POST /v3/eleves/{id}/documents/{document_id}.awp?verbe=get&v=4.101.4`
+### 2. Téléchargement d'un document : `POST /v3/eleves/{id}/documents/{document_id}.awp?verbe=get&v=4.101.4`
 
 ```json
 {

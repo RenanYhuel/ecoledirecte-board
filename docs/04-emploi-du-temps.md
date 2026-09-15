@@ -1,10 +1,10 @@
 ﻿# 04. Emploi du Temps
 
-## 1. Consultation de l Emploi du Temps
+## 1. Consultation de l'Emploi du Temps
 
 ### Endpoint : `POST /v3/E/{id}/emploidutemps.awp?verbe=get&v=4.101.4`
 
-Permet d obtenir les séances de cours programmées pour une période donnée.
+Permet d'obtenir les séances de cours programmées pour une période donnée.
 
 #### Corps de la requête
 ```json
@@ -17,7 +17,7 @@ Permet d obtenir les séances de cours programmées pour une période donnée.
 
 ---
 
-## 2. Structure d un Créneau de Cours (Code 200)
+## 2. Structure d'un Créneau de Cours (Code 200)
 
 ```json
 {
@@ -63,4 +63,4 @@ Permet d obtenir les séances de cours programmées pour une période donnée.
 ```
 
 ### Nettoyage des Noms de Salle
-Certains établissements intègrent des balises techniques dans le libellé de salle (ex: `"<L Tales 38>L 2303"`). Il convient d extraire la valeur utile `"L 2303"`.
+Certains établissements intègrent des balises techniques dans le libellé de salle (ex : `"<L Tales 38>L 2303"`). Il convient d'extraire la valeur utile `"L 2303"`.

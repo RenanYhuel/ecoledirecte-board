@@ -2,9 +2,9 @@
 
 ## 1. Espace de Stockage Cloud
 
-### Endpoint : `POST /v3/cloud.awp` ou `POST /v3/Eleves/{id}/cloud.awp`
+### Endpoint : `POST /v3/cloud.awp?verbe=get&v=4.101.4` ou `POST /v3/Eleves/{id}/cloud.awp?verbe=get&v=4.101.4`
 
-Permet d accéder aux dossiers partagés par les enseignants ou à l espace personnel de stockage de l élève.
+Permet d'accéder aux dossiers partagés par les enseignants ou à l'espace personnel de stockage de l'élève.
 
 #### Corps de la requête
 ```json
@@ -50,7 +50,7 @@ Permet d accéder aux dossiers partagés par les enseignants ou à l espace pers
 
 ## 2. Restauration Scolaire et Réservations de Repas
 
-### 1. Solde et Passages au Self : `POST /v3/eleves/{id}/restauration.awp`
+### 1. Solde et Passages au Self : `POST /v3/eleves/{id}/restauration.awp?verbe=get&v=4.101.4`
 
 #### Corps de la requête
 ```json
@@ -83,9 +83,9 @@ Permet d accéder aux dossiers partagés par les enseignants ou à l espace pers
 }
 ```
 
-### 2. Réservation de Repas : `POST /v3/eleves/{id}/reservations.awp`
+### 2. Réservation de Repas : `POST /v3/eleves/{id}/reservations.awp?verbe=get&v=4.101.4`
 
-Permet de réserver ou d annuler des repas pour les jours scolaires à venir.
+Permet de réserver ou d'annuler des repas pour les jours scolaires à venir.
 
 ```json
 {
@@ -114,9 +114,9 @@ Permet de réserver ou d annuler des repas pour les jours scolaires à venir.
 
 ## 3. Carnet de Correspondance Numérique
 
-### Endpoint : `POST /v3/eleves/{id}/carnetcorrespondance.awp`
+### Endpoint : `POST /v3/eleves/{id}/carnetcorrespondance.awp?verbe=get&v=4.101.4`
 
-Permet de consulter les communications officielles de l établissement exigeant un accusé de réception ou une signature des responsables légaux.
+Permet de consulter les communications officielles de l'établissement exigeant un accusé de réception ou une signature des responsables légaux.
 
 #### Réponse type (Code 200)
 
@@ -129,7 +129,7 @@ Permet de consulter les communications officielles de l établissement exigeant 
       {
         "id": 781,
         "date": "2026-09-08",
-        "titre": "Règlement intérieur de l établissement",
+        "titre": "Règlement intérieur de l'établissement",
         "contenu": "Merci de prendre connaissance et de signer le règlement intérieur 2026-2027.",
         "emetteur": "Direction du Lycée",
         "signatureRequise": true,

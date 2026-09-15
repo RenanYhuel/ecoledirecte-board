@@ -2,26 +2,26 @@
 
 ## 1. Structure du Compte Utilisateur
 
-Lors de l authentification, le tableau `data.accounts` renvoie un ou plusieurs comptes associés aux identifiants.
+Lors de l'authentification, le tableau `data.accounts` renvoie un ou plusieurs comptes associés aux identifiants.
 
 ### Typologie des Comptes (`typeCompte`)
 
 | Code | Type de Compte | Description |
 | :--- | :--- | :--- |
-| `E` | Élève | Compte individuel de l élève avec accès direct à ses données scolaires. |
+| `E` | Élève | Compte individuel de l'élève avec accès direct à ses données scolaires. |
 | `1` ou `2` | Famille / Responsable | Compte parent pouvant superviser un ou plusieurs élèves rattachés (`data.accounts[0].eleves`). |
 | `P` | Enseignant / Professeur | Accès au cahier de textes enseignant, saisie des notes et appel. |
-| `A` / `D` | Administration / Direction | Gestion globale de l établissement et vie scolaire. |
+| `A` / `D` | Administration / Direction | Gestion globale de l'établissement et vie scolaire. |
 
 ### Référentiel des Modules (`modules`)
 
-Chaque compte expose la liste des fonctionnalités activées par l établissement :
+Chaque compte expose la liste des fonctionnalités activées par l'établissement :
 
 - `NOTES` : Consultation des évaluations et moyennes.
 - `CAHIER_DE_TEXTES` : Devoirs et contenus de cours.
-- `EDT` : Emploi du temps temps réel.
-- `MESSAGERIE` : Boîte de réception et d envoi d emails internes.
-- `VIE_SCOLAIRE` : Absences, retards, passages à l infirmerie, sanctions.
+- `EDT` : Emploi du temps en temps réel.
+- `MESSAGERIE` : Boîte de réception et d'envoi d'emails internes.
+- `VIE_SCOLAIRE` : Absences, retards, passages à l'infirmerie, sanctions.
 - `DOCUMENTS` : Bulletins périodiques, certificats de scolarité, factures.
 - `CLOUD` : Espace de stockage et partage de documents pédagogiques.
 - `RESTAURATION` : Réservation de repas et solde du badge self.
@@ -33,7 +33,7 @@ Chaque compte expose la liste des fonctionnalités activées par l établissemen
 
 ### Endpoint : `POST /v3/Eleves/{id}/timeline.awp?verbe=get&v=4.101.4`
 
-Permet d obtenir le fil d actualité chronologique des événements récents affectant l élève (nouvelles notes publiées, devoirs ajoutés, messages non lus, modifications d emploi du temps).
+Permet d'obtenir le fil d'actualité chronologique des événements récents affectant l'élève (nouvelles notes publiées, devoirs ajoutés, messages non lus, modifications d'emploi du temps).
 
 #### Corps de la requête
 ```json
@@ -111,7 +111,7 @@ Permet d obtenir le fil d actualité chronologique des événements récents aff
 ```
 
 #### Réponse : Cas 2 - Aucune absence ou retard (Code 210)
-Lorsque le dossier de l élève ne comporte aucun événement de vie scolaire, ÉcoleDirecte renvoie le code `210` :
+Lorsque le dossier de l'élève ne comporte aucun événement de vie scolaire, ÉcoleDirecte renvoie le code `210` :
 ```json
 {
   "code": 210,
