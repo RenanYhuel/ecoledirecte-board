@@ -11,6 +11,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Instant;
+use tracing::{info, warn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RawApiResponse {
@@ -244,6 +245,7 @@ impl EcoleDirecteHttpClient {
             header_json.insert(k.to_string(), Value::String(v.to_str().unwrap_or("").to_string()));
         }
 
+        info!("[ED REQUEST] GET {} (bootstrap gtk)", url);
         let resp = self.client.get(&url).headers(headers).send().await?;
         let duration_ms = start.elapsed().as_millis() as u64;
         let status = resp.status().as_u16();
@@ -264,6 +266,8 @@ impl EcoleDirecteHttpClient {
             .clone()
             .or_else(|| self.cookies.read().get("GTK").cloned())
             .unwrap_or_default();
+
+        info!("[ED RESPONSE] GET {} -> HTTP {} ({}ms, gtk_present={})", url, status, duration_ms, !gtk.is_empty());
 
         self.inspector.record(ApiCallLog {
             id: uuid::Uuid::new_v4().to_string(),
@@ -313,6 +317,8 @@ impl EcoleDirecteHttpClient {
             header_json.insert(k.to_string(), Value::String(v.to_str().unwrap_or("").to_string()));
         }
 
+        info!("[ED REQUEST] [{}] POST {} (has_token={}, has_gtk={})", category, url, include_token, include_gtk);
+
         let resp = self
             .client
             .post(&url)
@@ -334,6 +340,28 @@ impl EcoleDirecteHttpClient {
             host: None,
             data: None,
         });
+
+        info!(
+            "[ED RESPONSE] [{}] POST {} -> HTTP {} | ED Code {} | Message: \"{}\" | Data: {} ({}ms)",
+            category,
+            url,
+            status,
+            raw_api.code,
+            raw_api.message.as_deref().unwrap_or(""),
+            if raw_api.data.is_some() { "present" } else { "none" },
+            duration_ms
+        );
+
+        if raw_api.code != 200 && raw_api.code != 250 {
+            warn!(
+                "[ED WARNING] [{}] Code {} returned for {}: \"{}\" | Body: {}",
+                category,
+                raw_api.code,
+                url,
+                raw_api.message.as_deref().unwrap_or(""),
+                resp_body
+            );
+        }
 
         if let Some(token) = &raw_api.token {
             if !token.trim().is_empty() {

@@ -21,6 +21,7 @@ impl AuthService {
     }
 
     pub async fn login(&self, req: &LoginRequest) -> Result<AuthResponse, AppError> {
+        info!("[AUTH] Attempting login with identifiant: {}", req.identifiant);
         self.http.clear_auth();
 
         self.http.bootstrap_gtk().await?;
@@ -40,18 +41,22 @@ impl AuthService {
             .await?;
 
         if resp.code == 200 {
+            info!("[AUTH] Login SUCCESS (code 200)");
             return self.process_success_auth(resp);
         }
 
         if resp.code == 250 {
-            info!("Double auth required (code 250)");
+            info!("[AUTH] Double authentication required (code 250)");
             let challenge = self.fetch_qcm_challenge().await?;
+            info!("[AUTH] 2FA Challenge: \"{}\" with {} propositions", challenge.question_decoded, challenge.propositions.len());
 
             return Ok(AuthResponse::DoubleAuthRequired {
                 challenge,
                 token: resp.token,
             });
         }
+
+        info!("[AUTH] Login FAILED (code {}): {}", resp.code, resp.message.as_deref().unwrap_or(""));
 
         Ok(AuthResponse::Error {
             code: resp.code,

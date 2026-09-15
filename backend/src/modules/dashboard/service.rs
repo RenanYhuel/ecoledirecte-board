@@ -16,7 +16,7 @@ use crate::modules::timetable::models::CourseSlot;
 use crate::modules::timetable::TimetableService;
 use chrono::Utc;
 use std::sync::Arc;
-use tracing::warn;
+use tracing::{info, warn};
 
 #[derive(Clone)]
 pub struct DashboardService {
@@ -54,6 +54,7 @@ impl DashboardService {
     }
 
     pub async fn get_overview(&self, explicit_student_id: Option<u64>) -> Result<DashboardOverview, AppError> {
+        info!("[OVERVIEW] Ensuring authentication before overview calculation...");
         self.auth_service.ensure_authenticated().await?;
 
         let session = self.auth_service.get_current_session();
@@ -71,6 +72,8 @@ impl DashboardService {
         let student_id = explicit_student_id
             .or_else(|| get_ecoledirecte_student_id())
             .unwrap_or(student.id);
+
+        info!("[OVERVIEW] Loading data for student ID: {} ({} {})...", student_id, student.first_name, student.last_name);
 
         let now = chrono::Local::now();
         let today_str = now.format("%Y-%m-%d").to_string();
