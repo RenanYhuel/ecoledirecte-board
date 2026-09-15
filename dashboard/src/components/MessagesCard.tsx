@@ -26,7 +26,7 @@ function cleanEdText(str: string): string {
   if (!str) return '';
   return str
     .replace(/Ǹ/g, 'é')
-    .replace(/\?\?/g, '—')
+    .replace(/\?\?/g, '-')
     .replace(/\uFFFD/g, 'à')
     .replace(/\\u0027/g, "'")
     .replace(/&amp;/g, '&')
